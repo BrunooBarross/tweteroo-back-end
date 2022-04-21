@@ -22,12 +22,13 @@ app.post("/sign-up", (req, res) => {
 });
 
 app.get("/tweets", (req, res) => {
-    res.send(tweets);
+    res.send(tweets.slice(0,10));
 });
 
 app.post("/tweets", (req, res) => {
-    tweets.push({nome: req.body.username, avatar: dadosUsuario[0].avatar, tweet: req.body.tweet} )
-    res.send(console.log(dadosUsuario[0].avatar));
+    let avatarUsuario = dadosUsuario.find(element => element.nome === req.body.username);
+    tweets.unshift({username: req.body.username, avatar: avatarUsuario.avatar, tweet: req.body.tweet} )
+    res.send(console.log(avatarUsuario.avatar));
 });
 
 app.listen(5000, console.log("Server rodando na port 5000"));
