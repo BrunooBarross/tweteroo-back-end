@@ -18,7 +18,7 @@ const tweets = [
 
 app.post("/sign-up", (req, res) => {
     dadosUsuario.push({nome: req.body.username, avatar: req.body.avatar} )
-    res.send(console.log(dadosUsuario));
+    res.send(console.log("OK"));
 });
 
 app.get("/tweets", (req, res) => {
@@ -28,7 +28,7 @@ app.get("/tweets", (req, res) => {
 app.post("/tweets", (req, res) => {
     let avatarUsuario = dadosUsuario.find(element => element.nome === req.body.username);
     tweets.unshift({username: req.body.username, avatar: avatarUsuario.avatar, tweet: req.body.tweet} )
-    res.send(console.log(avatarUsuario.avatar));
+    res.send(console.log("OK"));
 });
 
 app.listen(5000, console.log("Server rodando na port 5000"));
