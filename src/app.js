@@ -16,6 +16,9 @@ const tweets = [
 ]
 
 app.post("/sign-up", (req, res) => {
+    if (!req.body.username || !req.body.avatar){
+        res.status(400).send("Todos os campos são obrigatórios");
+    }
     dadosUsuario.push({ nome: req.body.username, avatar: req.body.avatar })
     res.send("OK");
 });
