@@ -18,9 +18,10 @@ const tweets = [
 app.post("/sign-up", (req, res) => {
     if (!req.body.username || !req.body.avatar){
         res.status(400).send("Todos os campos são obrigatórios");
+        return;
     }
     dadosUsuario.push({ nome: req.body.username, avatar: req.body.avatar })
-    res.send("OK");
+    res.status(200).send("OK");
 });
 
 app.get("/tweets", (req, res) => {
@@ -29,8 +30,12 @@ app.get("/tweets", (req, res) => {
 
 app.post("/tweets", (req, res) => {
     let avatarUsuario = dadosUsuario.find(element => element.nome === req.body.username);
+    if(!req.body.username || !req.body.tweet){
+        res.status(400).send("Todos os campos são obrigatórios");
+        return;
+    }
     tweets.unshift({ username: req.body.username, avatar: avatarUsuario.avatar, tweet: req.body.tweet })
-    res.send("OK");
+    res.status(201).send("OK");
 });
 
 app.listen(5000, console.log("Server rodando na port 5000"));
