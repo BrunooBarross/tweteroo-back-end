@@ -1,41 +1,61 @@
-import express from 'express';
-import cors from 'cors';
+import express, {json} from "express";
+import cors from "cors";
+import chalk from "chalk";
 
 const app = express();
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
 app.use(cors());
+app.use(json());
 
-const dadosUsuario = [];
-const tweets = [
-    {
-        username: "bobesponja",
-        avatar: "https://super.abril.com.br/wp-content/uploads/2020/09/04-09_gato_SITE.jpg?quality=70&strip=info",
-        tweet: "eu amo o hub"
-    }
-]
+// banco de dados em memória
+let tweets = [];
+let usuarios = [];
 
 app.post("/sign-up", (req, res) => {
-    if (!req.body.username || !req.body.avatar){
-        res.status(400).send("Todos os campos são obrigatórios");
-        return;
-    }
-    dadosUsuario.push({ nome: req.body.username, avatar: req.body.avatar })
-    res.status(200).send("OK");
-});
+  const {username, avatar} = req.body;
+  if(!username || !avatar) {
+    res.status(400).send("Todos os campos são obrigatórios!");
+    return;
+  }
 
-app.get("/tweets", (req, res) => {
-    res.send(tweets.slice(0, 10));
+  usuarios.push({username, avatar});
+  res.status(200).send("OK");
 });
 
 app.post("/tweets", (req, res) => {
-    let avatarUsuario = dadosUsuario.find(element => element.nome === req.body.username);
-    if(!req.body.username || !req.body.tweet){
-        res.status(400).send("Todos os campos são obrigatórios");
-        return;
-    }
-    tweets.unshift({ username: req.body.username, avatar: avatarUsuario.avatar, tweet: req.body.tweet })
-    res.status(201).send("OK");
+  const {user: username} = req.headers;
+  const {tweet} = req.body;
+
+  if(!username || !tweet) {
+    res.status(400).send("Todos os campos são obrigatórios!");
+    return;
+  }
+
+  const avatar = usuarios.find(usuario => usuario.username === username).avatar;
+  tweets.push({ tweet, username, avatar });
+  res.sendStatus(201).send("OK");
 });
 
-app.listen(5000, console.log("Server rodando na port 5000"));
+app.get("/tweets", (req, res) => {
+  const pagina = req.query.page;
+  if(!pagina || parseInt(pagina) < 1) {
+    res.status(400).send("Informe uma página válida!");
+  }
+
+  const limite = 10;
+  const inicio = (pagina - 1) * limite;
+  const final = pagina * limite;
+
+  const tweetsFiltrados = [...tweets].reverse().slice(inicio, final); //ou splice (modifica o array)
+  res.status(200).send(tweetsFiltrados);
+});
+
+app.get("/tweets/:username", (req, res) => {
+  const {username} =  req.params;
+  const tweetsFiltrados = tweets.filter(tweet => tweet.username === username);
+  res.send(tweetsFiltrados);
+})
+
+const port = process.env.PORT || 5000;
+app.listen(port, () => {
+  console.log(chalk.bold.green(`Servidor em pé na porta ${port}!`));
+})
